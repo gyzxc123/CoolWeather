@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -78,6 +79,7 @@ public class ChooseAreaActivity extends Activity {
 
 	private void queryProvinces() {
 		provinceList = mCoolWeatherDB.loadProvinces();
+		Log.d("Chron", "provinceList.size()="+provinceList.size());
 		if (provinceList.size() > 0) {
 			dataList.clear();
 			for (Province province : provinceList) {
@@ -95,6 +97,7 @@ public class ChooseAreaActivity extends Activity {
 
 	private void queryCities() {
 		cityList = mCoolWeatherDB.loadCities(selectProvince.getId());
+		Log.d("Chron", "cityList.size()="+cityList.size());
 		if (cityList.size() > 0) {
 			dataList.clear();
 			for (City city : cityList) {
@@ -111,6 +114,7 @@ public class ChooseAreaActivity extends Activity {
 
 	private void queryCounties() {
 		countyList = mCoolWeatherDB.loadCounties(selectCity.getId());
+		Log.d("Chron", "countyList.size()="+countyList.size());
 		if (countyList.size() > 0) {
 			dataList.clear();
 			for (County county : countyList) {
