@@ -2,6 +2,7 @@ package com.coolweather.app.activity;
 
 import com.coolweather.app.R;
 import com.coolweather.app.log.AppLog;
+import com.coolweather.app.service.AutoUpdateService;
 import com.coolweather.app.util.HttpCallbackListener;
 import com.coolweather.app.util.HttpUtil;
 import com.coolweather.app.util.Utility;
@@ -76,7 +77,8 @@ public class WeatherActivity extends Activity implements OnClickListener {
 
 		case R.id.refresh:
 			publishText.setText("Í¬²½ÖÐ...");
-			SharedPreferences prf = PreferenceManager.getDefaultSharedPreferences(this);
+			SharedPreferences prf = PreferenceManager
+					.getDefaultSharedPreferences(this);
 			String weatherCode = prf.getString("weather_code", "");
 			if (!TextUtils.isEmpty(weatherCode)) {
 				queryWeatherInfo(weatherCode);
@@ -157,6 +159,8 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		currentDateText.setText(pref.getString("current_date", ""));
 		weatherInfoLayout.setVisibility(View.VISIBLE);
 		cityNameText.setVisibility(View.VISIBLE);
+		Intent intent = new Intent(this, AutoUpdateService.class);
+		startService(intent);
 
 	}
 }
