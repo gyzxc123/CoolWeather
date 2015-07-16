@@ -5,7 +5,10 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +22,7 @@ import android.widget.Toast;
 
 import com.coolweather.app.R;
 import com.coolweather.app.db.CoolWeatherDB;
+import com.coolweather.app.log.AppLog;
 import com.coolweather.app.model.City;
 import com.coolweather.app.model.County;
 import com.coolweather.app.model.Province;
@@ -28,6 +32,7 @@ import com.coolweather.app.util.Utility;
 
 public class ChooseAreaActivity extends Activity {
 
+	private static final String TAG = "ChooseAreaActivity";
 	public static final int LEVEL_PROVINCE = 0;
 	public static final int LEVEL_CITY = 1;
 	public static final int LEVEL_COUNTY = 2;
@@ -51,6 +56,14 @@ public class ChooseAreaActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		SharedPreferences pref = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		if (pref.getBoolean("city_selected", false)) {
+			Intent intent = new Intent(this, WeatherActivity.class);
+			startActivity(intent);
+			finish();
+			return;
+		}
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.choose_area);
 		mListView = (ListView) findViewById(R.id.list_view);
@@ -71,6 +84,15 @@ public class ChooseAreaActivity extends Activity {
 				} else if (currentLevel == LEVEL_CITY) {
 					selectCity = cityList.get(position);
 					queryCounties();
+				} else if (currentLevel == LEVEL_COUNTY) {
+					String countyCode = countyList.get(position)
+							.getCountyCode();
+					AppLog.i(TAG, "onCreate countyCode=" + countyCode);
+					Intent intent = new Intent(ChooseAreaActivity.this,
+							WeatherActivity.class);
+					intent.putExtra("county_code", countyCode);
+					startActivity(intent);
+					finish();
 				}
 			}
 		});
@@ -79,7 +101,7 @@ public class ChooseAreaActivity extends Activity {
 
 	private void queryProvinces() {
 		provinceList = mCoolWeatherDB.loadProvinces();
-		Log.d("Chron", "provinceList.size()="+provinceList.size());
+		Log.d("Chron", "provinceList.size()=" + provinceList.size());
 		if (provinceList.size() > 0) {
 			dataList.clear();
 			for (Province province : provinceList) {
@@ -97,7 +119,7 @@ public class ChooseAreaActivity extends Activity {
 
 	private void queryCities() {
 		cityList = mCoolWeatherDB.loadCities(selectProvince.getId());
-		Log.d("Chron", "cityList.size()="+cityList.size());
+		Log.d("Chron", "cityList.size()=" + cityList.size());
 		if (cityList.size() > 0) {
 			dataList.clear();
 			for (City city : cityList) {
@@ -114,7 +136,7 @@ public class ChooseAreaActivity extends Activity {
 
 	private void queryCounties() {
 		countyList = mCoolWeatherDB.loadCounties(selectCity.getId());
-		Log.d("Chron", "countyList.size()="+countyList.size());
+		AppLog.d(TAG, "countyList.size()=" + countyList.size());
 		if (countyList.size() > 0) {
 			dataList.clear();
 			for (County county : countyList) {
@@ -216,4 +238,5 @@ public class ChooseAreaActivity extends Activity {
 			finish();
 		}
 	}
+
 }
