@@ -7,16 +7,19 @@ import com.coolweather.app.util.HttpUtil;
 import com.coolweather.app.util.Utility;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class WeatherActivity extends Activity {
+public class WeatherActivity extends Activity implements OnClickListener {
 
 	private static final String TAG = "WeatherActivity";
 	private LinearLayout weatherInfoLayout;
@@ -26,6 +29,8 @@ public class WeatherActivity extends Activity {
 	private TextView temp1Text;
 	private TextView temp2Text;
 	private TextView currentDateText;
+	private Button switchCity;
+	private Button refreshWeather;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +44,8 @@ public class WeatherActivity extends Activity {
 		weatherDespText = (TextView) findViewById(R.id.weather_desp);
 		temp1Text = (TextView) findViewById(R.id.temp1);
 		temp2Text = (TextView) findViewById(R.id.temp2);
+		switchCity = (Button) findViewById(R.id.switch_city);
+		refreshWeather = (Button) findViewById(R.id.refresh);
 		currentDateText = (TextView) findViewById(R.id.current_date);
 		String countyCode = getIntent().getStringExtra("county_code");
 		AppLog.i(TAG, "onCreate countyCode=" + countyCode);
@@ -49,6 +56,35 @@ public class WeatherActivity extends Activity {
 			queryWeatherCode(countyCode);
 		} else {
 			showWeather();
+		}
+		switchCity.setOnClickListener(this);
+		refreshWeather.setOnClickListener(this);
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+
+		case R.id.switch_city:
+			Intent intent = new Intent(WeatherActivity.this,
+					ChooseAreaActivity.class);
+			intent.putExtra("from_weather_activity", true);
+			startActivity(intent);
+			finish();
+			break;
+
+		case R.id.refresh:
+			publishText.setText("Í¬²½ÖÐ...");
+			SharedPreferences prf = PreferenceManager.getDefaultSharedPreferences(this);
+			String weatherCode = prf.getString("weather_code", "");
+			if (!TextUtils.isEmpty(weatherCode)) {
+				queryWeatherInfo(weatherCode);
+			}
+			break;
+
+		default:
+			break;
 		}
 	}
 
@@ -79,7 +115,8 @@ public class WeatherActivity extends Activity {
 						String[] array = response.split("\\|");
 						if (array != null && array.length == 2) {
 							String weatherCode = array[1];
-							AppLog.i(TAG, "queryFromServer weatherCode=" + weatherCode);
+							AppLog.i(TAG, "queryFromServer weatherCode="
+									+ weatherCode);
 							queryWeatherInfo(weatherCode);
 						}
 					}
